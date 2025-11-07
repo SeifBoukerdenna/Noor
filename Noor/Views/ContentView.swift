@@ -1,14 +1,19 @@
+//
+//  ContentView.swift
+//  Noor
+//
+//  Created by Gemini on 2025-11-07.
+//
+
 import SwiftUI
 import AVFoundation
 
 
 struct ContentView: View {
-    
-    // Get the ability to open other windows from the environment
     @Environment(\.openWindow) private var openWindow
     
-    // Receive the shared CameraService from the main App file
     @ObservedObject var cameraService: CameraService
+    @ObservedObject var handTracker: HandTrackingService
     
     var body: some View {
         VStack(spacing: 12) {
@@ -18,30 +23,21 @@ struct ContentView: View {
             
             Divider()
             
-            // This button opens the new, separate debug window
             Button("Show Debug Panel") {
-                
-                // --- ADD THIS LINE ---
-                // This forces the app to the foreground
                 NSApp.activate(ignoringOtherApps: true)
-                // ---------------------
-                
-                // This tells SwiftUI to find and open
-                // the WindowGroup with the matching ID
                 openWindow(id: "debug-window")
             }
+            .keyboardShortcut("d", modifiers: .command) // Cmd+D Shortcut
             
             Divider()
             
-            // We can still show live status data here
             VStack(alignment: .leading) {
-                Text("Status: \(cameraService.fps > 0 ? "Running" : "Idle")")
+                Text("Status: \(handTracker.fps > 0 ? "Running" : "Idle")")
                     .font(.caption)
-                Text("FPS: \(cameraService.fps, specifier: "%.1f")")
+                Text("FPS: \(handTracker.fps, specifier: "%.1f")")
                     .font(.caption)
             }
             
-            // A button to quit the app
             Button("Quit") {
                 NSApplication.shared.terminate(nil)
             }
@@ -49,6 +45,6 @@ struct ContentView: View {
 
         }
         .padding(.horizontal)
-        .frame(width: 250) // A good, fixed size for a control panel
+        .frame(width: 250)
     }
 }
