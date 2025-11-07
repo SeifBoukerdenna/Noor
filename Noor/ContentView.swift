@@ -1,24 +1,6 @@
 import SwiftUI
 import AVFoundation
 
-// We need a special view to host the camera preview layer
-struct CameraPreviewView: NSViewRepresentable {
-    
-    // The preview layer from our camera service
-    let previewLayer: AVCaptureVideoPreviewLayer
-    
-    // Create the NSView
-    func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        view.layer = previewLayer // Set the view's layer to our preview
-        view.layer?.cornerRadius = 10 // Optional: make it look nice
-        return view
-    }
-    
-    // Update the view (not needed for this)
-    func updateNSView(_ nsView: NSView, context: Context) {}
-}
-
 
 struct ContentView: View {
     

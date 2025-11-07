@@ -10,9 +10,22 @@
 		71E340E62EBD979900BE5ABD /* Noor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Noor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		712ABD582EBDAB7100AA8F68 /* Exceptions for "Noor" folder in "Noor" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 71E340E52EBD979900BE5ABD /* Noor */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		71E340E82EBD979900BE5ABD /* Noor */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				712ABD582EBDAB7100AA8F68 /* Exceptions for "Noor" folder in "Noor" target */,
+			);
 			path = Noor;
 			sourceTree = "<group>";
 		};
@@ -257,6 +270,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Noor/Info.plist;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Noor needs camera access to perform eye and hand tracking.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -286,6 +300,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Noor/Info.plist;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Noor needs camera access to perform eye and hand tracking.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
