@@ -30,10 +30,16 @@ class GestureInterpreter: ObservableObject {
 
         for hand in observations {
             let chirality: HandChirality = (hand.chirality == .left) ? .left : .right
-            let staticGesture = detectFist(from: hand)
+            let staticGesture = detectGesture(from: hand)
             let dynamicGesture = detectMotion(from: hand, handedness: chirality)
+            let palmOrientation = detectPalmOrientation(from: hand)
             
-            let state = HandState(chirality: chirality, staticGesture: staticGesture, dynamicGesture: dynamicGesture)
+            let state = HandState(
+                chirality: chirality,
+                staticGesture: staticGesture,
+                dynamicGesture: dynamicGesture,
+                palmOrientation: palmOrientation
+            )
             
             if chirality == .left { newLeft = state }
             else { newRight = state }
@@ -96,19 +102,47 @@ class GestureInterpreter: ObservableObject {
         return .stationary
     }
     
-    private func detectFist(from handObservation: VNHumanHandPoseObservation) -> StaticGesture {
+    private func detectPalmOrientation(from handObservation: VNHumanHandPoseObservation) -> PalmOrientation {
         guard
             let wristPoint = try? handObservation.recognizedPoint(.wrist),
-            
+            let middleMCPPoint = try? handObservation.recognizedPoint(.middleMCP),
+            wristPoint.confidence > 0.3,
+            middleMCPPoint.confidence > 0.3
+        else {
+            return .neutral
+        }
+        
+        // Vector from wrist to middle MCP (palm center direction)
+        let palmVector = CGPoint(
+            x: middleMCPPoint.location.x - wristPoint.location.x,
+            y: middleMCPPoint.location.y - wristPoint.location.y
+        )
+        
+        // In Vision framework coordinates (0,0 is bottom-left):
+        // If palm vector points "up" (positive Y), palm is facing screen
+        // If palm vector points "down" (negative Y), palm is facing away
+        
+        let orientationThreshold: CGFloat = 0.05
+        
+        if palmVector.y > orientationThreshold {
+            return .facingScreen
+        } else if palmVector.y < -orientationThreshold {
+            return .facingAway
+        }
+        
+        return .neutral
+    }
+    
+    private func detectGesture(from handObservation: VNHumanHandPoseObservation) -> StaticGesture {
+        guard
+            let wristPoint = try? handObservation.recognizedPoint(.wrist),
+            let thumbTip = try? handObservation.recognizedPoint(.thumbTip),
             let indexTipPoint = try? handObservation.recognizedPoint(.indexTip),
             let indexPIPPoint = try? handObservation.recognizedPoint(.indexPIP),
-            
             let middleTipPoint = try? handObservation.recognizedPoint(.middleTip),
             let middlePIPPoint = try? handObservation.recognizedPoint(.middlePIP),
-            
             let ringTipPoint = try? handObservation.recognizedPoint(.ringTip),
             let ringPIPPoint = try? handObservation.recognizedPoint(.ringPIP),
-            
             let littleTipPoint = try? handObservation.recognizedPoint(.littleTip),
             let littlePIPPoint = try? handObservation.recognizedPoint(.littlePIP)
         else {
@@ -116,13 +150,41 @@ class GestureInterpreter: ObservableObject {
         }
         
         let allPoints = [
-            wristPoint, indexTipPoint, indexPIPPoint, middleTipPoint, middlePIPPoint,
+            wristPoint, thumbTip, indexTipPoint, indexPIPPoint, middleTipPoint, middlePIPPoint,
             ringTipPoint, ringPIPPoint, littleTipPoint, littlePIPPoint
         ]
         guard allPoints.allSatisfy({ $0.confidence > 0.3 }) else {
-            return .unknown // Low confidence
+            return .unknown
         }
         
+        // PINCH: Thumb tip + Index tip close together
+        // CRITICAL: Require high confidence to avoid false positives when hand exits frame
+        let thumbIndexDistance = distance(from: thumbTip.location, to: indexTipPoint.location)
+        let pinchThreshold: CGFloat = 0.05
+        
+        if thumbIndexDistance < pinchThreshold {
+            // Extra validation: require HIGH confidence for pinch landmarks
+            guard thumbTip.confidence > 0.7 && indexTipPoint.confidence > 0.7 else {
+                return .unknown
+            }
+            
+            // Validate other fingers are extended (not curled like a fist)
+            let middleTipDist = distance(from: wristPoint.location, to: middleTipPoint.location)
+            let middlePIPDist = distance(from: wristPoint.location, to: middlePIPPoint.location)
+            let ringTipDist = distance(from: wristPoint.location, to: ringTipPoint.location)
+            let ringPIPDist = distance(from: wristPoint.location, to: ringPIPPoint.location)
+            
+            // Other fingers should be extended (tip farther than PIP)
+            let openThreshold: CGFloat = 0.95 // Tip should be at least as far as PIP
+            let areOtherFingersExtended = middleTipDist > middlePIPDist * openThreshold &&
+                                          ringTipDist > ringPIPDist * openThreshold
+            
+            if areOtherFingersExtended {
+                return .pinch
+            }
+        }
+        
+        // FIST: All fingers curled
         let indexTipDist = distance(from: wristPoint.location, to: indexTipPoint.location)
         let indexPIPDist = distance(from: wristPoint.location, to: indexPIPPoint.location)
         
@@ -135,7 +197,7 @@ class GestureInterpreter: ObservableObject {
         let littleTipDist = distance(from: wristPoint.location, to: littleTipPoint.location)
         let littlePIPDist = distance(from: wristPoint.location, to: littlePIPPoint.location)
 
-        let fistMargin: CGFloat = 0.85 // Tip must be at least 15% closer
+        let fistMargin: CGFloat = 0.85
         let areAllCurled = indexTipDist < indexPIPDist * fistMargin &&
                            middleTipDist < middlePIPDist * fistMargin &&
                            ringTipDist < ringPIPDist * fistMargin &&
@@ -143,6 +205,8 @@ class GestureInterpreter: ObservableObject {
         
         if areAllCurled {
             return .fist
+            
+            
         }
         
         return .open
@@ -154,4 +218,3 @@ class GestureInterpreter: ObservableObject {
         return sqrt(distanceX * distanceX + distanceY * distanceY)
     }
 }
-

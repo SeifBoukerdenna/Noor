@@ -1,5 +1,12 @@
 import Foundation
 
 enum AppAction {
-    case confirm, appSwitcher, scrollUp, scrollDown, none
+    case confirm
+    case appSwitcher
+    case appSwitcherStart
+    case appSwitcherDrop
+    case appSwitcherCycle
+    case scrollUp
+    case scrollDown
+    case none
 }

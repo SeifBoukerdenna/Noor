@@ -18,6 +18,7 @@ struct DebugView: View {
                 let leftMotion = gestureInterpreter.leftHandState?.dynamicGesture.rawValue ?? "---"
                 let rightGesture = gestureInterpreter.rightHandState?.staticGesture.rawValue ?? "---"
                 let rightMotion = gestureInterpreter.rightHandState?.dynamicGesture.rawValue ?? "---"
+                let rightPalm = gestureInterpreter.rightHandState?.palmOrientation.rawValue ?? "---"
 
                 Text("Left Hand: \(leftGesture)")
                     .font(.system(size: 12, weight: .bold))
@@ -34,6 +35,10 @@ struct DebugView: View {
                 Text("Right Motion: \(rightMotion)")
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(motionColor(rightMotion))
+                
+                Text("Right Palm: \(rightPalm)")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(palmColor(rightPalm))
             }
             .padding(8)
             .background(Color.black.opacity(0.5))
@@ -47,6 +52,8 @@ struct DebugView: View {
         switch gesture {
         case "Fist":
             return .green
+        case "Pinch":
+            return .purple
         default:
             return .white
         }
@@ -58,6 +65,17 @@ struct DebugView: View {
             return .cyan
         case "Down":
             return .orange
+        default:
+            return .white
+        }
+    }
+    
+    func palmColor(_ palm: String) -> Color {
+        switch palm {
+        case "→ Screen":
+            return .green
+        case "← Away":
+            return .red
         default:
             return .white
         }
