@@ -7,11 +7,12 @@ class CalibrationDataManager {
     private var sessionURL: URL?
     
     init() {
-        // ~/Library/Application Support/Noor/calibration_sessions/
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        self.baseURL = appSupport.appendingPathComponent("Noor/calibration_sessions")
+        // Save to Desktop: ~/Desktop/calibration_sessions/
+        let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]
+        self.baseURL = desktopURL.appendingPathComponent("calibration_sessions")
         
         try? FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
+        print("📁 Calibration data will be saved to: \(baseURL.path)")
     }
     
     func startSession(_ session: CalibrationSession) throws {
