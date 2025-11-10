@@ -41,7 +41,7 @@ struct NoorApp: App {
         .windowLevel(.floating)
         
         Window("Calibration", id: "calibration-window") {
-            CalibrationView()
+            CalibrationView(cameraService: cameraService)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
