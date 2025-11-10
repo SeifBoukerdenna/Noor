@@ -27,7 +27,13 @@ struct ContentView: View {
                 NSApp.activate(ignoringOtherApps: true)
                 openWindow(id: "debug-window")
             }
-            .keyboardShortcut("d", modifiers: .command) // Cmd+D Shortcut
+            .keyboardShortcut("d", modifiers: .command)
+            
+            Button("Start Calibration") {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "calibration-window")
+            }
+            .keyboardShortcut("c", modifiers: .command)
             
             Divider()
             

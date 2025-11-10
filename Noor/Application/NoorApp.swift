@@ -31,7 +31,7 @@ struct NoorApp: App {
         }
         .menuBarExtraStyle(.window)
         
-        WindowGroup("Debug Panel", id: "debug-window") {
+        Window("Debug Panel", id: "debug-window") {
             DebugView(
                 cameraService: cameraService,
                 handTracker: handTracker,
@@ -39,5 +39,14 @@ struct NoorApp: App {
             )
         }
         .windowLevel(.floating)
+        
+        Window("Calibration", id: "calibration-window") {
+            CalibrationView()
+        }
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
+        .windowLevel(.floating)
+        .defaultSize(width: NSScreen.main?.frame.width ?? 1920,
+                     height: NSScreen.main?.frame.height ?? 1080)
     }
 }
